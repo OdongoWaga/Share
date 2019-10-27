@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>975216938780-j5ap9birifgp0bo8dnc4a6lkfg2s1kic.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.975216938780-j5ap9birifgp0bo8dnc4a6lkfg2s1kic</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAx6-5nlKioupMLrLLlfYZPPEVHkI-XPmM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>975216938780</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>ke.co.wagaodongo.shared</string>
+	<key>PROJECT_ID</key>
+	<string>shared-cc258</string>
+	<key>STORAGE_BUCKET</key>
+	<string>shared-cc258.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:975216938780:ios:6767c399ff2ffb3d74b4d9</string>
+	<key>DATABASE_URL</key>
+	<string>https://shared-cc258.firebaseio.com</string>
+</dict>
+</plist>

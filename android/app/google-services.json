@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "975216938780",
+    "firebase_url": "https://shared-cc258.firebaseio.com",
+    "project_id": "shared-cc258",
+    "storage_bucket": "shared-cc258.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975216938780:android:a8b1b1c3d872e88c74b4d9",
+        "android_client_info": {
+          "package_name": "ke.co.wagaodongo.shared"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "975216938780-o17l7h4t8qeq9pepp6kd6h2onqabolj6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEJ1TsFWjk8Z8d1CrMix9S1eiPlXRcCS4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "975216938780-o17l7h4t8qeq9pepp6kd6h2onqabolj6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
