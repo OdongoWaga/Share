@@ -27,6 +27,8 @@ class _SearchState extends State<Search> {
   }
 
   Container buildNoContent() {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+
     return Container(
       child: Center(
         child: ListView(
@@ -34,7 +36,7 @@ class _SearchState extends State<Search> {
           children: <Widget>[
             SvgPicture.asset(
               'assets/images/search.svg',
-              height: 300,
+              height: orientation == Orientation.portrait ? 300 : 200,
             ),
             Text(
               " Find Users",
