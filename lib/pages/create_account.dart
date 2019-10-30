@@ -11,6 +11,10 @@ class _CreateAccountState extends State<CreateAccount> {
   String username;
 
   submit() {
+    final form = _formKey.currentState;
+
+    form.save();
+
     _formKey.currentState.save();
     Navigator.pop(context, username);
   }
@@ -39,6 +43,13 @@ class _CreateAccountState extends State<CreateAccount> {
                     child: Form(
                       key: _formKey,
                       child: TextFormField(
+                        validator: (val) {
+                          if (val.trim().length < 3 || val.isEmpty) {
+                            return 'Username too short';
+                          } else if (val.trim().length > 12) {
+                            return "Username is too long";
+                          }
+                        },
                         onSaved: (val) => username = val,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
