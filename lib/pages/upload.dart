@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared/models/user.dart';
@@ -21,9 +22,10 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload> {
-  TextEditingController locationController = TextEditingController();
+class _UploadState extends State<Upload>
+    with AutomaticKeepAliveClientMixin<Upload> {
   TextEditingController captionController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   File file;
   bool isUploading = false;
   String postId = Uuid().v4();
@@ -50,23 +52,24 @@ class _UploadState extends State<Upload> {
 
   selectImage(parentContext) {
     return showDialog(
-        context: parentContext,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text("Create Post"),
-            children: <Widget>[
-              SimpleDialogOption(
-                  child: Text("Photo with Camera"), onPressed: handleTakePhoto),
-              SimpleDialogOption(
-                  child: Text("Image from Gallery"),
-                  onPressed: handleChooseFromGallery),
-              SimpleDialogOption(
-                child: Text("Cancel"),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
-          );
-        });
+      context: parentContext,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text("Create Post"),
+          children: <Widget>[
+            SimpleDialogOption(
+                child: Text("Photo with Camera"), onPressed: handleTakePhoto),
+            SimpleDialogOption(
+                child: Text("Image from Gallery"),
+                onPressed: handleChooseFromGallery),
+            SimpleDialogOption(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      },
+    );
   }
 
   Container buildSplashScreen() {
@@ -136,7 +139,7 @@ class _UploadState extends State<Upload> {
       "description": description,
       "location": location,
       "timestamp": timestamp,
-      "likes": {}
+      "likes": {},
     });
   }
 
@@ -144,7 +147,6 @@ class _UploadState extends State<Upload> {
     setState(() {
       isUploading = true;
     });
-
     await compressImage();
     String mediaUrl = await uploadImage(file);
     createPostInFirestore(
@@ -166,27 +168,22 @@ class _UploadState extends State<Upload> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: clearImage,
-        ),
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: clearImage),
         title: Text(
           "Caption Post",
-          style: TextStyle(
-            color: Colors.black,
-          ),
+          style: TextStyle(color: Colors.black),
         ),
-        actions: <Widget>[
+        actions: [
           FlatButton(
             onPressed: isUploading ? null : () => handleSubmit(),
             child: Text(
               "Post",
               style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0),
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
             ),
           ),
         ],
@@ -195,17 +192,18 @@ class _UploadState extends State<Upload> {
         children: <Widget>[
           isUploading ? linearProgress() : Text(""),
           Container(
-            height: 220,
+            height: 220.0,
             width: MediaQuery.of(context).size.width * 0.8,
             child: Center(
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Container(
                   decoration: BoxDecoration(
-                      image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileImage(file),
-                  )),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: FileImage(file),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -219,11 +217,13 @@ class _UploadState extends State<Upload> {
                   CachedNetworkImageProvider(widget.currentUser.photoUrl),
             ),
             title: Container(
-              width: 250,
+              width: 250.0,
               child: TextField(
                 controller: captionController,
                 decoration: InputDecoration(
-                    hintText: "Write a caption...", border: InputBorder.none),
+                  hintText: "Write a caption...",
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ),
@@ -251,27 +251,44 @@ class _UploadState extends State<Upload> {
             alignment: Alignment.center,
             child: RaisedButton.icon(
               label: Text(
-                "Use the Current Location",
+                "Use Current Location",
                 style: TextStyle(color: Colors.white),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
               ),
               color: Colors.blue,
-              onPressed: () => print('get user location'),
+              onPressed: getUserLocation,
               icon: Icon(
                 Icons.my_location,
                 color: Colors.white,
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
+  getUserLocation() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks = await Geolocator()
+        .placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placemark = placemarks[0];
+    String completeAddress =
+        '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
+    print(completeAddress);
+    String formattedAddress = "${placemark.locality}, ${placemark.country}";
+    locationController.text = formattedAddress;
+  }
+
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return file == null ? buildSplashScreen() : buildUploadForm();
   }
 }
