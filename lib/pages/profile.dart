@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/models/user.dart';
 import 'package:shared/widgets/header.dart';
 import 'package:shared/widgets/post.dart';
+import 'package:shared/widgets/post_tile.dart';
 import 'package:shared/widgets/progress.dart';
 
 import 'edit_profile.dart';
@@ -200,9 +201,22 @@ class _ProfileState extends State<Profile> {
     if (isLoading) {
       return circularProgress();
     }
-    return Column(
-      children: posts,
+    List<GridTile> gridTiles = [];
+
+    posts.forEach((post) {
+      gridTiles.add(GridTile(child: PostTile(post)));
+    });
+    return GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1,
+      mainAxisSpacing: 1.5,
+      crossAxisSpacing: 1.5,
+      physics: NeverScrollableScrollPhysics(),
+      children: gridTiles,
     );
+//    return Column(
+//      children: posts,
+//    );
   }
 
   @override
