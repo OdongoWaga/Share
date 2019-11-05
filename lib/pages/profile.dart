@@ -4,6 +4,7 @@ import 'package:shared/models/user.dart';
 import 'package:shared/widgets/header.dart';
 import 'package:shared/widgets/progress.dart';
 
+import 'edit_profile.dart';
 import 'home.dart';
 
 class Profile extends StatefulWidget {
@@ -42,20 +43,26 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  editProfile(){
-
+  editProfile() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EditProfile(currentUserId: currentUserId)));
   }
 
-  Container buildButton({String text, Function function }) {
-    return Container (
+  Container buildButton({String text, Function function}) {
+    return Container(
       padding: EdgeInsets.only(top: 2),
       child: FlatButton(
         onPressed: function,
         child: Container(
+          width: 250,
+          height: 27,
           child: Text(
             text,
             style: TextStyle(
-              color: 
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
           alignment: Alignment.center,
@@ -75,11 +82,11 @@ class _ProfileState extends State<Profile> {
     // If viewing own profile
 
     bool isProfileOwner = currentUserId == widget.profileId;
-    if(isProfileOwner) {
+    if (isProfileOwner) {
       return buildButton(
         text: "Edit Profile",
         function: editProfile,
-      )
+      );
     }
   }
 
