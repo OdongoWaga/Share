@@ -135,6 +135,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': false});
+      removeLikeFromActivityField();
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -161,7 +162,42 @@ class _PostState extends State<Post> {
     }
   }
 
-  addLikeToActivityFeed() {}
+  addLikeToActivityFeed() {
+    //add a notification to the post owner's activity feed only on comments made by others
+
+    bool isNotPostOwner = currentUserId != ownerId;
+    if (isNotPostOwner) {
+      activityFeedRef
+          .document(ownerId)
+          .collection("feedItems")
+          .document(postId)
+          .setData({
+        "type": "like",
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImg": currentUser.photoUrl,
+        "postId": postId,
+        "mediaUrl": mediaUrl,
+        "timestamp": timestamp
+      });
+    }
+  }
+
+  removeLikeFromActivityField() {
+    bool isNotPostOwner = currentUserId != ownerId;
+    if (isNotPostOwner) {
+      activityFeedRef
+          .document(ownerId)
+          .collection("feedItems")
+          .document(postId)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      });
+    }
+  }
 
   buildPostImage() {
     return GestureDetector(
