@@ -78,10 +78,10 @@ class _PostState extends State<Post> {
   final String location;
   final String description;
   final String mediaUrl;
+  bool showHeart = false;
+  bool isLiked;
   int likeCount;
   Map likes;
-  bool isLiked;
-  bool showHeart = false;
 
   _PostState({
     this.postId,
@@ -102,6 +102,7 @@ class _PostState extends State<Post> {
           return circularProgress();
         }
         User user = User.fromDocument(snapshot.data);
+        bool isPostOwner = currentUserId == ownerId;
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
@@ -118,13 +119,77 @@ class _PostState extends State<Post> {
             ),
           ),
           subtitle: Text(location),
-          trailing: IconButton(
-            onPressed: () => print('deleting post'),
-            icon: Icon(Icons.more_vert),
-          ),
+          trailing: isPostOwner
+              ? IconButton(
+                  onPressed: () => handleDeletePost(context),
+                  icon: Icon(Icons.more_vert),
+                )
+              : Text(''),
         );
       },
     );
+  }
+
+  handleDeletePost(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Remove this post?"),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    deletePost();
+                  },
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
+            ],
+          );
+        });
+  }
+
+  // Note: To delete post, ownerId and currentUserId must be equal, so they can be used interchangeably
+  deletePost() async {
+    // delete post itself
+    postsRef
+        .document(ownerId)
+        .collection('userPosts')
+        .document(postId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // delete uploaded image for thep ost
+    storageRef.child("post_$postId.jpg").delete();
+    // then delete all activity feed notifications
+    QuerySnapshot activityFeedSnapshot = await activityFeedRef
+        .document(ownerId)
+        .collection("feedItems")
+        .where('postId', isEqualTo: postId)
+        .getDocuments();
+    activityFeedSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // then delete all comments
+    QuerySnapshot commentsSnapshot = await commentsRef
+        .document(postId)
+        .collection('comments')
+        .getDocuments();
+    commentsSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
   }
 
   handleLikePost() {
@@ -136,7 +201,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': false});
-      removeLikeFromActivityField();
+      removeLikeFromActivityFeed();
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -164,8 +229,7 @@ class _PostState extends State<Post> {
   }
 
   addLikeToActivityFeed() {
-    //add a notification to the post owner's activity feed only on comments made by others
-
+    // add a notification to the postOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own like)
     bool isNotPostOwner = currentUserId != ownerId;
     if (isNotPostOwner) {
       activityFeedRef
@@ -179,12 +243,12 @@ class _PostState extends State<Post> {
         "userProfileImg": currentUser.photoUrl,
         "postId": postId,
         "mediaUrl": mediaUrl,
-        "timestamp": timestamp
+        "timestamp": timestamp,
       });
     }
   }
 
-  removeLikeFromActivityField() {
+  removeLikeFromActivityFeed() {
     bool isNotPostOwner = currentUserId != ownerId;
     if (isNotPostOwner) {
       activityFeedRef
@@ -209,7 +273,7 @@ class _PostState extends State<Post> {
           cachedNetworkImage(mediaUrl),
           showHeart
               ? Animator(
-                  duration: Duration(milliseconds: 500),
+                  duration: Duration(milliseconds: 300),
                   tween: Tween(begin: 0.8, end: 1.4),
                   curve: Curves.elasticOut,
                   cycles: 0,
@@ -217,14 +281,12 @@ class _PostState extends State<Post> {
                     scale: anim.value,
                     child: Icon(
                       Icons.favorite,
-                      size: 80,
+                      size: 80.0,
                       color: Colors.red,
                     ),
                   ),
                 )
               : Text(""),
-
-          // Text(""),
         ],
       ),
     );
@@ -247,8 +309,12 @@ class _PostState extends State<Post> {
             ),
             Padding(padding: EdgeInsets.only(right: 20.0)),
             GestureDetector(
-              onTap: () => showComments(context,
-                  postId: postId, ownerId: ownerId, mediaUrl: mediaUrl),
+              onTap: () => showComments(
+                context,
+                postId: postId,
+                ownerId: ownerId,
+                mediaUrl: mediaUrl,
+              ),
               child: Icon(
                 Icons.chat,
                 size: 28.0,
@@ -306,19 +372,13 @@ class _PostState extends State<Post> {
   }
 }
 
-showComments(
-  BuildContext context, {
-  String postId,
-  String ownerId,
-  String mediaUrl,
-}) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) {
-        return Comments(
-            postId: postId, postOwnerId: ownerId, postMediaUrl: mediaUrl);
-      },
-    ),
-  );
+showComments(BuildContext context,
+    {String postId, String ownerId, String mediaUrl}) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) {
+    return Comments(
+      postId: postId,
+      postOwnerId: ownerId,
+      postMediaUrl: mediaUrl,
+    );
+  }));
 }
