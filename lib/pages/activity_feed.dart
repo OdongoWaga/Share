@@ -87,6 +87,18 @@ class ActivityFeedItem extends StatelessWidget {
     );
   }
 
+  showPost(context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostScreen(
+          postId: postId,
+          userId: userId,
+        ),
+      ),
+    );
+  }
+
   configureMediaPreview(context) {
     if (type == "like" || type == 'comment') {
       mediaPreview = GestureDetector(
@@ -119,18 +131,6 @@ class ActivityFeedItem extends StatelessWidget {
     } else {
       activityItemText = "Error: Unknown type '$type'";
     }
-  }
-
-  showPost(context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PostScreen(
-          postId: postId,
-          userId: userId,
-        ),
-      ),
-    );
   }
 
   @override
