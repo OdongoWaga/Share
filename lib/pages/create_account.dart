@@ -16,13 +16,10 @@ class _CreateAccountState extends State<CreateAccount> {
   submit() {
     final form = _formKey.currentState;
 
-    form.save();
     if (form.validate()) {
-      _formKey.currentState.save();
-      SnackBar snackBar = SnackBar(
-        content: Text("Welcome $username!"),
-      );
-      _scaffoldKey.currentState.showSnackBar(snackBar);
+      form.save();
+      SnackBar snackbar = SnackBar(content: Text("Welcome $username!"));
+      _scaffoldKey.currentState.showSnackBar(snackbar);
       Timer(Duration(seconds: 2), () {
         Navigator.pop(context, username);
       });
@@ -58,9 +55,9 @@ class _CreateAccountState extends State<CreateAccount> {
                       child: TextFormField(
                         validator: (val) {
                           if (val.trim().length < 3 || val.isEmpty) {
-                            return 'Username too short';
+                            return "Username too short";
                           } else if (val.trim().length > 12) {
-                            return "Username is too long";
+                            return "Username too long";
                           } else {
                             return null;
                           }
@@ -69,8 +66,8 @@ class _CreateAccountState extends State<CreateAccount> {
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Username",
-                          labelStyle: TextStyle(fontSize: 15),
-                          hintText: "Must be at least three characters",
+                          labelStyle: TextStyle(fontSize: 15.0),
+                          hintText: "Must be at least 3 characters",
                         ),
                       ),
                     ),
@@ -95,7 +92,7 @@ class _CreateAccountState extends State<CreateAccount> {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           )
